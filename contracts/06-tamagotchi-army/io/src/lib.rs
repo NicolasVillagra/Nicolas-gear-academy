@@ -132,7 +132,7 @@ impl TamagotchiFactory {
             panic!("Incorrect answer from tamagotchi contract");
         }
 
-        msg::reply(TamagotchiFactoryEvent::Approved(_user), 0).expect("Error sending reply");
+        msg::reply(TamagotchiFactoryEvent::Approved(user), 0).expect("Error sending reply");
     }
 
     pub async fn revoke_approval(&self, tamagotchi_id: TamagotchiId) {
