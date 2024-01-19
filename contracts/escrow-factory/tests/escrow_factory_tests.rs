@@ -2,6 +2,7 @@ use escrow_factory_io::*;
 #[allow(unused_imports)]
 use escrow_io::Escrow;
 use gstd::ActorId;
+#[allow(unused_imports)]
 use gtest::{Log, Program, System, TestError};
 
 pub const SELLER: u64 = 15;
