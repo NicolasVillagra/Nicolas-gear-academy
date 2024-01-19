@@ -1,4 +1,5 @@
 use escrow_factory_io::*;
+#[allow(unused_imports)]
 use escrow_io::Escrow;
 use gstd::ActorId;
 use gtest::{Log, Program, System, TestError};
@@ -35,8 +36,8 @@ fn create_new_escrow() {
 
     // we create the payload to create a new scrow
     let payload = FactoryAction::CreateEscrow {
-        seller: SELLER,
-        buyer: BUYER,
+        seller: SELLER.into(),
+        buyer: BUYER.into(),
         price: PRICE,
     };
 
@@ -63,8 +64,8 @@ fn deposit_to_escrow() {
     assert!(!res.main_failed());
 
     let mut payload = FactoryAction::CreateEscrow {
-        seller: SELLER,
-        buyer: BUYER,
+        seller: SELLER.into(),
+        buyer: BUYER.into(),
         price: PRICE,
     };
 
@@ -104,8 +105,8 @@ fn deposit_to_escrow_fail() {
     assert!(!res.main_failed());
 
     let mut payload = FactoryAction::CreateEscrow {
-        seller: SELLER,
-        buyer: BUYER,
+        seller: SELLER.into(),
+        buyer: BUYER.into(),
         price: PRICE,
     };
 
@@ -152,8 +153,8 @@ fn confirm_delivery() {
     assert!(!res.main_failed());
 
     let mut payload = FactoryAction::CreateEscrow {
-        seller: SELLER,
-        buyer: BUYER,
+        seller: SELLER.into(),
+        buyer: BUYER.into(),
         price: PRICE,
     };
 
@@ -204,8 +205,8 @@ fn confirm_delivery_fail() {
     assert!(!res.main_failed());
 
     let mut payload = FactoryAction::CreateEscrow {
-        seller: SELLER,
-        buyer: BUYER,
+        seller: SELLER.into(),
+        buyer: BUYER.into(),
         price: PRICE,
     };
 
