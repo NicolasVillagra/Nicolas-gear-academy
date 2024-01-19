@@ -21,7 +21,6 @@ fn deposit() {
 
     sys.mint_to(BUYER, PRICE + ONE_VARA);
 
-    #[allow(unused_variables)]
     let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
     let log = Log::builder()
         .dest(BUYER)
@@ -72,7 +71,6 @@ fn confirm_delivery() {
 
     sys.mint_to(BUYER, PRICE + ONE_VARA * 5);
 
-    #[allow(unused_variables)]
     let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
 
     let res = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
@@ -119,11 +117,11 @@ fn confirm_delivery_failures() {
     let res = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
     assert!(!res.main_failed());
 
-    // must fail since the state is`Closed`
+    // must fail since the state is `Closed`
     let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
     assert!(res.main_failed());
 
-    // must fail since the state is`Closed`
+    // must fail since the state is `Closed`
     let res = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
     assert!(res.main_failed());
 }
