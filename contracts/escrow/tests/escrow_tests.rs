@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 use escrow_io::{EscrowAction, EscrowEvent, EscrowState, InitEscrow};
 use gtest::{Log, Program, System};
 
@@ -67,9 +68,9 @@ fn confirm_delivery() {
     let escrow = sys.get_program(ESCROW_ID);
 
     sys.mint_to(BUYER, PRICE + ONE_VARA * 5);
-
+    #[allow(unused_variables)]
     let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
-
+    #[allow(unused_variables)]
     let res = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
 
     sys.claim_value_from_mailbox(SELLER);
@@ -125,6 +126,7 @@ fn confirm_delivery_failures() {
 
 fn init_escrow(sys: &System) {
     sys.init_logger();
+    #[allow(clippy::needless_borrow)]
     let escrow = Program::current(&sys);
     let res = escrow.send(
         SELLER,
