@@ -1,5 +1,6 @@
 #![no_std]
 use escrow_factory_io::*;
+#[allow(unused_imports)]
 use gstd::{msg, prelude::*, ActorId, CodeId};
 
 static mut ESCROW_FACTORY: Option<EscrowFactory> = None;
