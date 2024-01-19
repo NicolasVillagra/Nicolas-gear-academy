@@ -128,7 +128,7 @@ impl TamagotchiFactory {
         let tamagotchi_ans =
             Self::send_message(&tamagotchi_address, TmgAction::Approve(user)).await;
 
-        if let TmgEvent::Approved(user) = tamagotchi_ans {
+        if let TmgEvent::Approved(_user) = tamagotchi_ans {
             panic!("Incorrect answer from tamagotchi contract");
         }
 
