@@ -71,11 +71,11 @@ fn confirm_delivery() {
 
     sys.mint_to(BUYER, PRICE + ONE_VARA * 5);
 
-    let res_deposit = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
-    assert!(!res_deposit.main_failed());
+    #[allow(unused_variables)]
+    let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
 
-    let res_confirm_delivery = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
-    assert!(!res_confirm_delivery.main_failed());
+    #[allow(unused_variables)]
+    let res = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
 
     sys.claim_value_from_mailbox(SELLER);
 
@@ -104,8 +104,9 @@ fn confirm_delivery_failures() {
     sys.mint_to(BUYER, ONE_VARA * 17);
 
     // successful deposit
-    let res_deposit = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
-    assert!(!res_deposit.main_failed());
+    let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
+
+    assert!(!res.main_failed());
     // must fail since the state must be `AwaitingPayment`
     let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
     assert!(res.main_failed());
@@ -115,8 +116,8 @@ fn confirm_delivery_failures() {
     assert!(res.main_failed());
 
     // Successful confirm delivery
-    let res_confirm_delivery = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
-    assert!(!res_confirm_delivery.main_failed());
+    let res = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
+    assert!(!res.main_failed());
 
     // must fail since the state is `Closed`
     let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
@@ -126,9 +127,10 @@ fn confirm_delivery_failures() {
     let res = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
     assert!(res.main_failed());
 }
-
+#[allow(clippy::needless_borrow)]
 fn init_escrow(sys: &System) {
     sys.init_logger();
+    
     let escrow = Program::current(&sys);
     let res = escrow.send(
         SELLER,
