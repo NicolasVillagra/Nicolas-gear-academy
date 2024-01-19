@@ -127,10 +127,9 @@ fn confirm_delivery_failures() {
     let res = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
     assert!(res.main_failed());
 }
-#[allow(clippy::needless_borrow)]
 fn init_escrow(sys: &System) {
     sys.init_logger();
-    
+    #[allow(clippy::needless_borrow)]
     let escrow = Program::current(&sys);
     let res = escrow.send(
         SELLER,
