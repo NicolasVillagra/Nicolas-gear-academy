@@ -116,7 +116,7 @@ impl TamagotchiFactory {
         let tamagotchi_ans =
             Self::send_message(&tamagotchi_address, TmgAction::Transfer(new_owner)).await;
 
-        if let TmgEvent::Transferred(new_owner) = tamagotchi_ans {
+        if let TmgEvent::Transferred(_new_owner) = tamagotchi_ans {
             panic!("Incorrect answer from tamagotchi contract");
         }
 
@@ -132,7 +132,7 @@ impl TamagotchiFactory {
             panic!("Incorrect answer from tamagotchi contract");
         }
 
-        msg::reply(TamagotchiFactoryEvent::Approved(user), 0).expect("Error sending reply");
+        msg::reply(TamagotchiFactoryEvent::Approved(_user), 0).expect("Error sending reply");
     }
 
     pub async fn revoke_approval(&self, tamagotchi_id: TamagotchiId) {
