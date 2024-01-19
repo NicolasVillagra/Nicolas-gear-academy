@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 use escrow_factory_io::*;
 #[allow(unused_imports)]
 use escrow_io::Escrow;
