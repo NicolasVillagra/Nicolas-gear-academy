@@ -1,11 +1,6 @@
-use gstd::{msg, prelude::*  };
+use gstd::{msg, prelude::*};
 
-use escrow_io::{
-    InitEscrow,
-    EscrowAction,
-    EscrowState,
-    Escrow
-};
+use escrow_io::{Escrow, EscrowAction, EscrowState, InitEscrow};
 
 static mut ESCROW: Option<Escrow> = None;
 
@@ -18,34 +13,31 @@ fn state_mut() -> &'static mut Escrow {
 }
 
 #[no_mangle]
-unsafe extern "C" fn init() {
-    let init_config: InitEscrow = msg::load()
-        .expect("Error in decoding `InitEscrow");
+unsafe extern fn init() {
+    let init_config: InitEscrow = msg::load().expect("Error in decoding `InitEscrow");
     let escrow = Escrow {
         seller: init_config.seller,
         buyer: init_config.buyer,
         price: init_config.price,
-        state: EscrowState::AwaitingPayment
+        state: EscrowState::AwaitingPayment,
     };
     ESCROW = Some(escrow);
-    
-    msg::reply(String::from("Escrow created"), 0)
-        .expect("");
+
+    msg::reply(String::from("Escrow created"), 0).expect("");
 }
 
 #[no_mangle]
-unsafe extern "C" fn handle() {
-    let action: EscrowAction = msg::load()
-        .expect("Unable to decode `EscrowAction");
+unsafe extern fn handle() {
+    let action: EscrowAction = msg::load().expect("Unable to decode `EscrowAction");
     let escrow = state_mut();
     match action {
         EscrowAction::Deposit(address) => escrow.deposit(address),
-        EscrowAction::ConfirmDelivery(address) => escrow.confirm_delivery(address)
+        EscrowAction::ConfirmDelivery(address) => escrow.confirm_delivery(address),
     }
 }
 
 #[no_mangle]
-extern "C" fn state() {
+extern fn state() {
     let escrow = state_mut();
     msg::reply(escrow, 0).expect("Failed to share state");
 }

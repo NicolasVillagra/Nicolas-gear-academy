@@ -1,10 +1,7 @@
 #![no_std]
+use escrow_io::{EscrowState, ProgramMetadata};
 use gmeta::{metawasm, Metadata};
-use gstd::{ActorId, Vec, prelude::*};
-use escrow_io::{
-    ProgramMetadata,
-    EscrowState
-};
+use gstd::{prelude::*, ActorId, Vec};
 
 #[metawasm]
 pub mod metafns {
@@ -22,4 +19,3 @@ pub mod metafns {
         state.state
     }
 }
-

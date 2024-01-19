@@ -1,7 +1,7 @@
 #![no_std]
 
-use gmeta::{InOut, Out, Metadata};
-use gstd::{prelude::*, ActorId, msg};
+use gmeta::{InOut, Metadata, Out};
+use gstd::{msg, prelude::*, ActorId};
 
 pub struct ProgramMetadata;
 
@@ -13,7 +13,7 @@ pub enum EscrowState {
     #[default]
     AwaitingPayment,
     AwaitingDelivery,
-    Closed
+    Closed,
 }
 
 // #[derive(Encode, Decode, TypeInfo)]
@@ -25,7 +25,7 @@ pub enum EscrowEvent {
     FundsDeposited,
     DeliveryConfirmed,
     NotEnoughtFounds((u128, u128)),
-    FundsPassed(u128)
+    FundsPassed(u128),
 }
 
 //#[derive(Encode, Decode, TypeInfo)]
@@ -34,7 +34,7 @@ pub enum EscrowEvent {
 #[scale_info(crate = gstd::scale_info)]
 pub enum EscrowAction {
     Deposit(ActorId),
-    ConfirmDelivery(ActorId)
+    ConfirmDelivery(ActorId),
 }
 
 //#[derive(Default, Encode, Decode, TypeInfo)]
@@ -51,32 +51,30 @@ pub struct Escrow {
 impl Escrow {
     pub fn deposit(&mut self, user_address: ActorId) {
         assert_eq!(
-            self.state, 
-            EscrowState::AwaitingPayment, 
+            self.state,
+            EscrowState::AwaitingPayment,
             "State must be `AwaitingPayment"
         );
         assert_eq!(
-            user_address,
-            self.buyer,
+            user_address, self.buyer,
             "The message sender must be a buyer"
         );
-        
+
         assert_eq!(
             msg::value(),
             self.price,
             "The attached value must be equal to set price"
         );
-        
+
         self.state = EscrowState::AwaitingDelivery;
-        
+
         msg::reply(EscrowEvent::FundsDeposited, 0)
             .expect("Error in reply EscrowEvent::FundsDeposited");
     }
 
     pub fn confirm_delivery(&mut self, user_address: ActorId) {
         assert_eq!(
-            user_address,
-            self.buyer,
+            user_address, self.buyer,
             "The message sender must be a buyer"
         );
         assert_eq!(
@@ -86,8 +84,7 @@ impl Escrow {
         );
         msg::send(self.seller, "Buyer payment", self.price).expect("Error while sending funds");
         self.state = EscrowState::Closed;
-        msg::reply(EscrowEvent::DeliveryConfirmed, 0)
-            .expect("Error in sending reply");
+        msg::reply(EscrowEvent::DeliveryConfirmed, 0).expect("Error in sending reply");
     }
 }
 

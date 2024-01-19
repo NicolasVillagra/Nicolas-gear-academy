@@ -1,7 +1,7 @@
 #![no_std]
-use gmeta::{Metadata, In, InOut, Out};
-use gstd::{prelude::*, msg, CodeId, ActorId, prog::ProgramGenerator, collections::BTreeMap};
-use escrow_io::{InitEscrow, EscrowAction, EscrowEvent};
+use escrow_io::{EscrowAction, EscrowEvent, InitEscrow};
+use gmeta::{In, InOut, Metadata, Out};
+use gstd::{collections::BTreeMap, msg, prelude::*, prog::ProgramGenerator, ActorId, CodeId};
 
 pub type EscrowId = u64;
 
@@ -54,42 +54,42 @@ impl EscrowFactory {
         )
         .expect("Error during a reply `FactoryEvent::ProgramCreated`");
     }
-    
+
     pub async fn deposit(&self, escrow_id: EscrowId) {
         let escrow_address = self.get_escrow_address(escrow_id);
-        Self::send_message(
-            &escrow_address,
-            EscrowAction::Deposit(msg::source()),
-        ).await;
+        Self::send_message(&escrow_address, EscrowAction::Deposit(msg::source())).await;
         msg::reply(FactoryEvent::Deposited(escrow_id), 0)
             .expect("Error during a reply `FactoryEvent::Deposited`");
     }
-    
+
     pub async fn confirm_delivery(&self, escrow_id: EscrowId) {
         let escrow_address = self.get_escrow_address(escrow_id);
         Self::send_message(
             &escrow_address,
-            EscrowAction::ConfirmDelivery(msg::source())
-        ).await;
+            EscrowAction::ConfirmDelivery(msg::source()),
+        )
+        .await;
         msg::reply(FactoryEvent::DeliveryConfirmed(escrow_id), 0)
             .expect("Error during a reply `FactoryEvent::DeliveryConfirmed`");
     }
-    
+
     pub fn get_escrow_address(&self, escrow_id: EscrowId) -> ActorId {
         *self
             .id_to_address
             .get(&escrow_id)
             .expect("The escrow with indicated id does not exist")
     }
-    
-    pub async fn send_message(
-        escrow_address: &ActorId,
-        escrow_payload: EscrowAction,
-    ) {
-        msg::send_for_reply_as::<EscrowAction, EscrowEvent>(*escrow_address, escrow_payload, msg::value(), 0)
-            .expect("Error during a sending message to a Escrow program")
-            .await
-            .expect("Unable to decode EscrowEvent");
+
+    pub async fn send_message(escrow_address: &ActorId, escrow_payload: EscrowAction) {
+        msg::send_for_reply_as::<EscrowAction, EscrowEvent>(
+            *escrow_address,
+            escrow_payload,
+            msg::value(),
+            0,
+        )
+        .expect("Error during a sending message to a Escrow program")
+        .await
+        .expect("Unable to decode EscrowEvent");
     }
 }
 

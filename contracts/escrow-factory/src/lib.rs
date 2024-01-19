@@ -1,27 +1,24 @@
 #![no_std]
-use gstd::{msg, prelude::*, ActorId, CodeId};
 use escrow_factory_io::*;
+use gstd::{msg, prelude::*, ActorId, CodeId};
 
 static mut ESCROW_FACTORY: Option<EscrowFactory> = None;
 
 #[no_mangle]
-extern "C" fn init() {
-    let escrow_code_id: CodeId = msg::load()
-        .expect("Unable to decode CodeId of the Escrow program");
+extern fn init() {
+    let escrow_code_id: CodeId =
+        msg::load().expect("Unable to decode CodeId of the Escrow program");
     let escrow_factory = EscrowFactory {
         escrow_code_id,
         ..Default::default()
     };
     unsafe { ESCROW_FACTORY = Some(escrow_factory) };
-}   
+}
 
 #[gstd::async_main]
 async fn main() {
-    let action: FactoryAction = msg::load()
-        .expect("Unable to decode `FactoryAction`");
-    let factory = unsafe {
-        ESCROW_FACTORY.get_or_insert(Default::default())
-    };
+    let action: FactoryAction = msg::load().expect("Unable to decode `FactoryAction`");
+    let factory = unsafe { ESCROW_FACTORY.get_or_insert(Default::default()) };
     match action {
         FactoryAction::CreateEscrow {
             seller,
@@ -35,8 +32,7 @@ async fn main() {
 
 #[no_mangle]
 extern fn state() {
-    msg::reply(state_ref(), 0)
-        .expect("Failed to share state");
+    msg::reply(state_ref(), 0).expect("Failed to share state");
 }
 
 fn state_ref() -> &'static EscrowFactory {
