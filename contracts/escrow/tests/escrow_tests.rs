@@ -1,4 +1,7 @@
+#[allow(unused_imports)]
 use escrow_io::{EscrowAction, EscrowEvent, EscrowState, InitEscrow};
+
+#[allow(unused_imports)]
 use gtest::{Log, Program, System};
 
 const BUYER: u64 = 100;
@@ -18,6 +21,7 @@ fn deposit() {
 
     sys.mint_to(BUYER, PRICE + ONE_VARA);
 
+    #[allow(unused_variables)]
     let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
     let log = Log::builder()
         .dest(BUYER)
@@ -68,6 +72,7 @@ fn confirm_delivery() {
 
     sys.mint_to(BUYER, PRICE + ONE_VARA * 5);
 
+    #[allow(unused_variables)]
     let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
 
     let res = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));

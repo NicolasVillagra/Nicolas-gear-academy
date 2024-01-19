@@ -35,9 +35,9 @@ fn create_new_escrow() {
 
     // we create the payload to create a new scrow
     let payload = FactoryAction::CreateEscrow {
-        seller: SELLER.into(),
-        buyer: BUYER.into(),
-        price: PRICE.into(),
+        seller: SELLER,
+        buyer: BUYER,
+        price: PRICE,
     };
 
     let res = escrow_factory.send(BUYER, payload);
@@ -45,7 +45,7 @@ fn create_new_escrow() {
     let log = Log::builder()
         .dest(BUYER)
         .payload(FactoryEvent::EscrowCreated {
-            escrow_id: 1u64.into(),
+            escrow_id: 1,
             escrow_address: ADDRESS_SCROW,
         });
 
@@ -63,9 +63,9 @@ fn deposit_to_escrow() {
     assert!(!res.main_failed());
 
     let mut payload = FactoryAction::CreateEscrow {
-        seller: SELLER.into(),
-        buyer: BUYER.into(),
-        price: PRICE.into(),
+        seller: SELLER,
+        buyer: BUYER,
+        price: PRICE,
     };
 
     res = escrow_factory.send(BUYER, payload);
@@ -73,7 +73,7 @@ fn deposit_to_escrow() {
     let mut log = Log::builder()
         .dest(BUYER)
         .payload(FactoryEvent::EscrowCreated {
-            escrow_id: 1u64.into(),
+            escrow_id: 1,
             escrow_address: ADDRESS_SCROW,
         });
 
@@ -82,13 +82,13 @@ fn deposit_to_escrow() {
 
     system.mint_to(BUYER, 2 * PRICE + ONE_VARA);
 
-    payload = FactoryAction::Deposit(1u64.into());
+    payload = FactoryAction::Deposit(1);
 
     res = escrow_factory.send_with_value(BUYER, payload, PRICE);
 
     log = Log::builder()
         .dest(BUYER)
-        .payload(FactoryEvent::Deposited(1u32.into()));
+        .payload(FactoryEvent::Deposited(1));
 
     assert!(!res.main_failed());
     assert!(res.contains(&log));
@@ -104,9 +104,9 @@ fn deposit_to_escrow_fail() {
     assert!(!res.main_failed());
 
     let mut payload = FactoryAction::CreateEscrow {
-        seller: SELLER.into(),
-        buyer: BUYER.into(),
-        price: PRICE.into(),
+        seller: SELLER,
+        buyer: BUYER,
+        price: PRICE,
     };
 
     res = escrow_factory.send(BUYER, payload);
@@ -114,7 +114,7 @@ fn deposit_to_escrow_fail() {
     let mut log = Log::builder()
         .dest(BUYER)
         .payload(FactoryEvent::EscrowCreated {
-            escrow_id: 1u64.into(),
+            escrow_id: 1,
             escrow_address: ADDRESS_SCROW,
         });
 
@@ -123,20 +123,20 @@ fn deposit_to_escrow_fail() {
 
     system.mint_to(BUYER, 3 * PRICE + ONE_VARA);
 
-    payload = FactoryAction::Deposit(1u64.into());
+    payload = FactoryAction::Deposit(1);
 
     // must fail since the value is less than the price
     res = escrow_factory.send_with_value(BUYER, payload, PRICE - ONE_VARA);
 
     assert!(res.main_failed());
 
-    payload = FactoryAction::Deposit(1u64.into());
+    payload = FactoryAction::Deposit(1);
 
     res = escrow_factory.send_with_value(BUYER, payload, PRICE);
 
     log = Log::builder()
         .dest(BUYER)
-        .payload(FactoryEvent::Deposited(1u32.into()));
+        .payload(FactoryEvent::Deposited(1));
 
     assert!(!res.main_failed());
     assert!(res.contains(&log));
@@ -152,9 +152,9 @@ fn confirm_delivery() {
     assert!(!res.main_failed());
 
     let mut payload = FactoryAction::CreateEscrow {
-        seller: SELLER.into(),
-        buyer: BUYER.into(),
-        price: PRICE.into(),
+        seller: SELLER,
+        buyer: BUYER,
+        price: PRICE,
     };
 
     res = escrow_factory.send(BUYER, payload);
@@ -162,7 +162,7 @@ fn confirm_delivery() {
     let mut log = Log::builder()
         .dest(BUYER)
         .payload(FactoryEvent::EscrowCreated {
-            escrow_id: 1u64.into(),
+            escrow_id: 1,
             escrow_address: ADDRESS_SCROW,
         });
 
@@ -171,24 +171,24 @@ fn confirm_delivery() {
 
     system.mint_to(BUYER, 2 * PRICE + ONE_VARA);
 
-    payload = FactoryAction::Deposit(1u64.into());
+    payload = FactoryAction::Deposit(1);
 
     res = escrow_factory.send_with_value(BUYER, payload, PRICE);
 
     log = Log::builder()
         .dest(BUYER)
-        .payload(FactoryEvent::Deposited(1u64.into()));
+        .payload(FactoryEvent::Deposited(1));
 
     assert!(!res.main_failed());
     assert!(res.contains(&log));
 
-    payload = FactoryAction::ConfirmDelivery(1u64.into());
+    payload = FactoryAction::ConfirmDelivery(1);
 
     res = escrow_factory.send(BUYER, payload);
 
     log = Log::builder()
         .dest(BUYER)
-        .payload(FactoryEvent::DeliveryConfirmed(1u32.into()));
+        .payload(FactoryEvent::DeliveryConfirmed(1));
 
     assert!(!res.main_failed());
     assert!(res.contains(&log));
@@ -204,9 +204,9 @@ fn confirm_delivery_fail() {
     assert!(!res.main_failed());
 
     let mut payload = FactoryAction::CreateEscrow {
-        seller: SELLER.into(),
-        buyer: BUYER.into(),
-        price: PRICE.into(),
+        seller: SELLER,
+        buyer: BUYER,
+        price: PRICE,
     };
 
     res = escrow_factory.send(BUYER, payload);
@@ -214,7 +214,7 @@ fn confirm_delivery_fail() {
     let mut log = Log::builder()
         .dest(BUYER)
         .payload(FactoryEvent::EscrowCreated {
-            escrow_id: 1u64.into(),
+            escrow_id: 1,
             escrow_address: ADDRESS_SCROW,
         });
 
@@ -223,31 +223,31 @@ fn confirm_delivery_fail() {
 
     system.mint_to(BUYER, 2 * PRICE + ONE_VARA);
 
-    payload = FactoryAction::Deposit(1u64.into());
+    payload = FactoryAction::Deposit(1);
 
     res = escrow_factory.send_with_value(BUYER, payload, PRICE);
 
     log = Log::builder()
         .dest(BUYER)
-        .payload(FactoryEvent::Deposited(1u64.into()));
+        .payload(FactoryEvent::Deposited(1));
 
     assert!(!res.main_failed());
     assert!(res.contains(&log));
 
-    payload = FactoryAction::ConfirmDelivery(1u64.into());
+    payload = FactoryAction::ConfirmDelivery(1);
 
     // must fail since is not the buyer
     res = escrow_factory.send(SELLER, payload);
 
     assert!(res.main_failed());
 
-    payload = FactoryAction::ConfirmDelivery(1u64.into());
+    payload = FactoryAction::ConfirmDelivery(1);
 
     res = escrow_factory.send(BUYER, payload);
 
     log = Log::builder()
         .dest(BUYER)
-        .payload(FactoryEvent::DeliveryConfirmed(1u32.into()));
+        .payload(FactoryEvent::DeliveryConfirmed(1));
 
     assert!(!res.main_failed());
     assert!(res.contains(&log));
