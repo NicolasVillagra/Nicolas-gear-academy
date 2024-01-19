@@ -1,5 +1,5 @@
-use escrow_io::{ InitEscrow, EscrowAction, EscrowEvent, EscrowState };
-use gtest::{ Log, Program, System };
+use escrow_io::{EscrowAction, EscrowEvent, EscrowState, InitEscrow};
+use gtest::{Log, Program, System};
 
 const BUYER: u64 = 100;
 const SELLER: u64 = 101;
@@ -18,11 +18,7 @@ fn deposit() {
 
     sys.mint_to(BUYER, PRICE + ONE_VARA);
 
-    let res = escrow.send_with_value(
-        BUYER,
-        EscrowAction::Deposit(BUYER.into()),
-        PRICE,
-    );
+    let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
     let log = Log::builder()
         .dest(BUYER)
         .payload(EscrowEvent::FundsDeposited);
@@ -53,20 +49,12 @@ fn deposit_failures() {
     assert!(res.main_failed());
 
     sys.mint_to(BUYER, PRICE * 2 + ONE_VARA * 3);
-    
-    // successful deposit    
-    let res = escrow.send_with_value(
-        BUYER,
-        EscrowAction::Deposit(BUYER.into()),
-        PRICE,
-    );
+
+    // successful deposit
+    let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
     assert!(!res.main_failed());
-      // must fail since the state must be `AwaitingPayment`
-    let res = escrow.send_with_value(
-        BUYER,
-        EscrowAction::Deposit(BUYER.into()),
-        PRICE,
-    );
+    // must fail since the state must be `AwaitingPayment`
+    let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
     assert!(res.main_failed());
 }
 
@@ -80,16 +68,12 @@ fn confirm_delivery() {
 
     sys.mint_to(BUYER, PRICE + ONE_VARA * 5);
 
-    let res = escrow.send_with_value(
-        BUYER,
-        EscrowAction::Deposit(BUYER.into()),
-        PRICE,
-    );
+    let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
 
     let res = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
 
     sys.claim_value_from_mailbox(SELLER);
-    
+
     let seller_balance = sys.balance_of(SELLER);
 
     assert_eq!(seller_balance, PRICE);
@@ -105,11 +89,7 @@ fn confirm_delivery_failures() {
 
     sys.mint_to(BUYER, MIN_MINT + ONE_VARA * 8);
     // must fail since BUYER attaches not enough value
-    let res = escrow.send_with_value(
-        BUYER,
-        EscrowAction::Deposit(BUYER.into()),
-        ONE_VARA * 10,
-    );
+    let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), ONE_VARA * 10);
     assert!(res.main_failed());
 
     // must fail since the message sender is not BUYER
@@ -117,21 +97,13 @@ fn confirm_delivery_failures() {
     assert!(res.main_failed());
 
     sys.mint_to(BUYER, ONE_VARA * 17);
-    
+
     // successful deposit
-    let res = escrow.send_with_value(
-        BUYER,
-        EscrowAction::Deposit(BUYER.into()),
-        PRICE,
-    );
+    let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
 
     assert!(!res.main_failed());
     // must fail since the state must be `AwaitingPayment`
-    let res = escrow.send_with_value(
-        BUYER,
-        EscrowAction::Deposit(BUYER.into()),
-        PRICE,
-    );
+    let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
     assert!(res.main_failed());
 
     // must fail since the message sender is not Buyer
@@ -143,14 +115,10 @@ fn confirm_delivery_failures() {
     assert!(!res.main_failed());
 
     // must fail since the state is`Closed`
-    let res = escrow.send_with_value(
-        BUYER,
-        EscrowAction::Deposit(BUYER.into()),
-        PRICE,
-    );
+    let res = escrow.send_with_value(BUYER, EscrowAction::Deposit(BUYER.into()), PRICE);
     assert!(res.main_failed());
 
-    // must fail since the state is`Closed`    
+    // must fail since the state is`Closed`
     let res = escrow.send(BUYER, EscrowAction::ConfirmDelivery(BUYER.into()));
     assert!(res.main_failed());
 }
