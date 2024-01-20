@@ -5,8 +5,9 @@
   "license": "MIT",
   "scripts": {
     "build": "rm -rf dist && tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts"
+    "start": "node dist/index.ts",
+    "dev": "ts-node src/index.ts",
+    "empezar": "yaml-cli transactions.yml"
   },
   "dependencies": {
     "@gear-js/api": "^0.30.0",
