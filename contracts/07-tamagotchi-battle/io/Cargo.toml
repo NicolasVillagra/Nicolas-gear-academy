@@ -1,10 +1,9 @@
 [package]
-name = "escrow-factory-io"
+name = "tamagotchi-battle-io"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
 
 [dependencies]
+gstd.workspace = true
 gmeta.workspace = true
-gstd = { workspace = true, features = ["debug"] }
-escrow-io.workspace = true
