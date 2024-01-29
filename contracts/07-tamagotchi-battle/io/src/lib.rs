@@ -1,36 +1,11 @@
 #![no_std]
 
-use gmeta::{InOut, Metadata, Out};
 use gstd::{collections::BTreeMap, prelude::*, ActorId, MessageId, ReservationId};
+use gmeta::{InOut, Metadata, Out};
 
 pub type TamagotchiId = ActorId;
 pub type PairId = u8;
-pub struct BattleMetadata;
 
-impl Metadata for BattleMetadata {
-    type Init = ();
-    type Handle = InOut<BattleAction, BattleEvent>;
-    type Others = ();
-    type Reply = ();
-    type Signal = ();
-    type State = Out<Battle>;
-}
-
-#[derive(Default, Encode, Decode, TypeInfo)]
-#[codec(crate = gstd::codec)]
-#[scale_info(crate = gstd::scale_info)]
-pub struct Battle {
-    pub admins: Vec<ActorId>,
-    pub players: BTreeMap<ActorId, Player>,
-    pub players_ids: Vec<ActorId>,
-    pub current_players: Vec<ActorId>,
-    pub state: BattleState,
-    pub current_winner: ActorId,
-    pub pairs: BTreeMap<PairId, Pair>,
-    pub players_to_pairs: BTreeMap<ActorId, Vec<PairId>>,
-    pub completed_games: u8,
-    pub reservations: BTreeMap<ActorId, ReservationId>,
-}
 #[derive(Default, Debug, Clone, Encode, Decode, TypeInfo)]
 #[codec(crate = gstd::codec)]
 #[scale_info(crate = gstd::scale_info)]
@@ -44,14 +19,6 @@ pub struct Player {
     pub health: u16,
     pub color: String,
     pub victories: u32,
-}
-
-#[derive(Encode, Decode, TypeInfo, PartialEq, Eq, Debug, Clone)]
-#[codec(crate = gstd::codec)]
-#[scale_info(crate = gstd::scale_info)]
-pub enum Move {
-    Attack,
-    Defence,
 }
 
 #[derive(Default, Debug, Encode, Decode, TypeInfo, Clone)]
@@ -68,6 +35,14 @@ pub struct Pair {
     pub msg_id: MessageId,
 }
 
+#[derive(Encode, Decode, TypeInfo, PartialEq, Eq, Debug, Clone)]
+#[codec(crate = gstd::codec)]
+#[scale_info(crate = gstd::scale_info)]
+pub enum Move {
+    Attack,
+    Defence,
+}
+
 #[derive(Debug, PartialEq, Eq, Encode, Decode, TypeInfo, Default, Clone)]
 #[codec(crate = gstd::codec)]
 #[scale_info(crate = gstd::scale_info)]
@@ -77,6 +52,36 @@ pub enum BattleState {
     GameIsOn,
     WaitNextRound,
     GameIsOver,
+}
+
+#[derive(Default, Encode, Decode, TypeInfo)]
+#[codec(crate = gstd::codec)]
+#[scale_info(crate = gstd::scale_info)]
+pub struct BattleMetadata;
+
+impl Metadata for BattleMetadata {
+    type Init = ();
+    type Handle = InOut<BattleAction, BattleEvent>;
+    type Others = ();
+    type Reply = ();
+    type Signal = ();
+    type State = Out<Battle>;
+}
+
+#[derive(Default, Debug, Encode, Decode, TypeInfo)]
+#[codec(crate = gstd::codec)]
+#[scale_info(crate = gstd::scale_info)]
+pub struct Battle {
+    pub admins: Vec<ActorId>,
+    pub players: BTreeMap<ActorId, Player>,
+    pub players_ids: Vec<ActorId>,
+    pub current_players: Vec<ActorId>,
+    pub state: BattleState,
+    pub current_winner: ActorId,
+    pub pairs: BTreeMap<PairId, Pair>,
+    pub players_to_pairs: BTreeMap<ActorId, Vec<PairId>>,
+    pub completed_games: u8,
+    pub reservations: BTreeMap<ActorId, ReservationId>,
 }
 
 #[derive(Encode, Decode, TypeInfo, Debug)]
