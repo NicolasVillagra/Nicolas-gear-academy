@@ -1,6 +1,8 @@
 use escrow_factory_io::*;
+#[allow(unused_imports)]
 use escrow_io::Escrow;
 use gstd::ActorId;
+#[allow(unused_imports)]
 use gtest::{Log, Program, System, TestError};
 
 pub const SELLER: u64 = 15;
@@ -251,4 +253,54 @@ fn confirm_delivery_fail() {
 
     assert!(!res.main_failed());
     assert!(res.contains(&log));
+}
+
+#[test]
+fn confirm_delivery_wrong_buyer() {
+    let system = System::new();
+    let escrow_code_id =
+        system.submit_code("../target/wasm32-unknown-unknown/release/escrow.opt.wasm");
+    let escrow_factory = Program::current(&system);
+    let mut res = escrow_factory.send(100, escrow_code_id);
+    assert!(!res.main_failed());
+
+    let mut payload = FactoryAction::CreateEscrow {
+        seller: SELLER.into(),
+        buyer: BUYER.into(),
+        price: PRICE,
+    };
+
+    res = escrow_factory.send(BUYER, payload);
+
+    let mut log = Log::builder()
+        .dest(BUYER)
+        .payload(FactoryEvent::EscrowCreated {
+            escrow_id: 1u64,
+            escrow_address: ADDRESS_SCROW,
+        });
+
+    assert!(!res.main_failed());
+    assert!(res.contains(&log));
+
+    system.mint_to(BUYER, 2 * PRICE + ONE_VARA);
+
+    payload = FactoryAction::Deposit(1u64);
+
+    res = escrow_factory.send_with_value(BUYER, payload, PRICE);
+
+    log = Log::builder()
+        .dest(BUYER)
+        .payload(FactoryEvent::Deposited(1u64));
+
+    assert!(!res.main_failed());
+    assert!(res.contains(&log));
+
+    payload = FactoryAction::ConfirmDelivery(1u64);
+
+    // Intentamos confirmar la entrega siendo un comprador diferente
+    let wrong_buyer = BUYER + 1;
+    res = escrow_factory.send(wrong_buyer, payload);
+
+    // Debería fallar ya que el remitente no es el comprador correcto
+    assert!(res.main_failed());
 }

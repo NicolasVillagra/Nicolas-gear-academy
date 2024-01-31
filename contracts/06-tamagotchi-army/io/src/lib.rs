@@ -128,11 +128,11 @@ impl TamagotchiFactory {
         let tamagotchi_ans =
             Self::send_message(&tamagotchi_address, TmgAction::Approve(user)).await;
 
-        if let TmgEvent::Approved(user) = tamagotchi_ans {
+        if let TmgEvent::Approved(_user) = tamagotchi_ans {
             panic!("Incorrect answer from tamagotchi contract");
         }
 
-        msg::reply(TamagotchiFactoryEvent::Approved(_user), 0).expect("Error sending reply");
+        msg::reply(TamagotchiFactoryEvent::Approved(user), 0).expect("Error sending reply");
     }
 
     pub async fn revoke_approval(&self, tamagotchi_id: TamagotchiId) {

@@ -1,80 +1,83 @@
 #![no_std]
-
-#[allow(unused_imports)]
-use gstd::{exec, msg, prelude::*};
+use gstd::{msg, prelude::*, exec};
+use gstd::exec::block_height;
 use tamagotchi_interaction_io::*;
 
-// TODO: 4️⃣ Define constants
-const HUNGER_PER_BLOCK: u64 = 1;
-const BOREDOM_PER_BLOCK: u64 = 2;
-const ENERGY_PER_BLOCK: u64 = 2;
-const FILL_PER_FEED: u64 = 1000;
-const FILL_PER_ENTERTAINMENT: u64 = 1000;
-const FILL_PER_SLEEP: u64 = 1000;
+
 
 static mut TAMAGOTCHI: Option<Tamagotchi> = None;
 
 #[no_mangle]
 extern fn init() {
-    // TODO: 0️⃣ Copy the `init` function from the previous lesson and push changes to the master branch
-    let initname = msg::load().expect("unable to load name");
-    let birthdate = exec::block_timestamp();
+    let name: String = msg::load().expect("Failed to decode Tamagotchi name");
+    let age = exec::block_timestamp();
+    let block_height=block_height() as u64;
+
     let tmg = Tamagotchi {
-        name: initname,
-        date_of_birth: birthdate,
-        owner: Default::default(),
-        fed: 1,
-        fed_block: 0,
-        entertained: 1,
-        entertained_block: 0,
-        slept: 1,
-        slept_block: 0,
+        name, 
+        age,
+        owner: msg::source(),
+        fed: 10000,  
+        fed_block: block_height,
+        entertained: 10000,  
+        entertained_block:block_height,
+        slept: 10000,  
+        slept_block: block_height,
     };
+
     unsafe {
         TAMAGOTCHI = Some(tmg);
-    };
+    }
+    msg::reply("successful initialization!", 0)
+    .expect("error in reply");
 }
 
 #[no_mangle]
-extern fn handle() {
-    // TODO: 0️⃣ Copy the `handle` function from the previous lesson and push changes to the master branch
-    // TODO: 5️⃣ Add new logic for calculating the `fed`, `entertained` and `slept` levels
-    let action: TmgAction = msg::load().expect("unable to load action");
-    let tmg = unsafe { TAMAGOTCHI.as_mut().expect("TAMAGOTCHI is not initialized") };
-
+extern "C" fn handle() {
+    let action: TmgAction = msg::load().expect("Unable to decode `TmgAction`");
+    let tmg = unsafe { TAMAGOTCHI.get_or_insert(Default::default()) };
     match action {
         TmgAction::Name => {
             msg::reply(TmgEvent::Name(tmg.name.clone()), 0)
-                .expect("Error in a reply'tamagotchi::name'");
+                .expect("Error in a reply `TmgEvent::Name`");
         }
         TmgAction::Age => {
-            let age = exec::block_timestamp() - tmg.date_of_birth;
-            msg::reply(TmgEvent::Age(age), 0).expect("Error in a reply'tamagotchi::age'");
+            let age = exec::block_timestamp() - tmg.age;
+            msg::reply(TmgEvent::Age(age), 0)
+                .expect("Error in a reply `TmgEvent::Age`");
         }
         TmgAction::Feed => {
-            tmg.fed_block = exec::block_timestamp();
-            tmg.fed -= exec::block_height() as u64 * HUNGER_PER_BLOCK;
-            tmg.fed += FILL_PER_FEED;
-            msg::reply(TmgEvent::Fed, 0).expect("Not fed correctly");
-        }
+            tmg.feed();
+
+            
+            msg::reply(TmgEvent::Fed, 0)
+                .expect("Error sending tamagotchi variant 'Fed'");
+        },
         TmgAction::Entertain => {
-            tmg.entertained_block = exec::block_timestamp();
-            tmg.entertained -= exec::block_height() as u64 * BOREDOM_PER_BLOCK;
-            tmg.entertained += FILL_PER_ENTERTAINMENT;
-            msg::reply(TmgEvent::Entertained, 0).expect("Not entertained correctly");
-        }
+            tmg.entertain();
+
+
+            msg::reply(TmgEvent::Entertained, 0)
+                .expect("Error sending tamagotchi variant 'Entertained'");  
+        },
         TmgAction::Sleep => {
-            tmg.slept_block = exec::block_timestamp();
-            tmg.slept -= exec::block_height() as u64 * ENERGY_PER_BLOCK;
-            tmg.slept_block += FILL_PER_SLEEP;
-            msg::reply(TmgEvent::Slept, 0).expect("Not slept correctly");
-        }
-    }
+            tmg.sleep();
+
+
+            msg::reply(TmgEvent::Slept, 0)
+                .expect("Error sending tamagotchi variant 'Slept'");  
+        },
+    };
 }
+
+
+
+//logica por niveles
+
+
 
 #[no_mangle]
 extern fn state() {
-    // TODO: 0️⃣ Copy the `handle` function from the previous lesson and push changes to the master branch
-    let tmg = unsafe { TAMAGOTCHI.take().expect("Unexpected error in taking state") };
-    msg::reply(tmg, 0).expect("Failed to share state");
+    let mut tmg = unsafe { TAMAGOTCHI.get_or_insert(Default::default()) };
+    msg::reply(&tmg, 0).expect("Failed to reply state");
 }

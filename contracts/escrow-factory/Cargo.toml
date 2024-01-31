@@ -9,6 +9,7 @@ gstd = { workspace = true, features = ["debug"] }
 escrow-factory-io.workspace = true
 escrow-io.workspace = true
 hex-literal.workspace = true
+store-io.workspace = true
 
 [build-dependencies]
 gear-wasm-builder.workspace = true

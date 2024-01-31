@@ -19,7 +19,9 @@ members = [
     "06-tamagotchi-army",
     "escrow",
     "escrow/state",
-    "escrow-factory"
+    "escrow-factory",
+    "07-tamagotchi-battle",
+    "07-tamagotchi-st-new"
 ]
 
 [workspace.dependencies]
@@ -40,6 +42,8 @@ tamagotchi-auto-io.path = "05-tamagotchi-auto/io"
 tamagotchi-army-io.path = "06-tamagotchi-army/io"
 escrow-io.path = "escrow/io"
 escrow-factory-io.path = "escrow-factory/io"
+tamagotchi-battle-io.path = "07-tamagotchi-battle/io"
+tamagotchi-store-io.path = "07-tamagotchi-st-new/io"
 
 
 tokio = "1"
@@ -51,4 +55,3 @@ sharded-fungible-token-logic = { git = "https://github.com/gear-foundation/dapps
 sharded-fungible-token-storage = { git = "https://github.com/gear-foundation/dapps", tag = "v1.0.2" }
 sharded-fungible-token-io = { git = "https://github.com/gear-foundation/dapps", tag = "v1.0.2" }
 hex-literal = "0.4"
-

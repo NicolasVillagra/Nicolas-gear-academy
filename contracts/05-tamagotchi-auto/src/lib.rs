@@ -179,6 +179,10 @@ async fn main() {
 
             msg::reply(TmgEvent::GasReserved, 0).expect("Error in sending a reply");
         }
+        TmgAction::TmgInfo => {
+            msg::reply(TmgEvent::Owner(tamagotchi.owner), 0) 
+                .expect("Error in reply");
+        }
     }
 }
 

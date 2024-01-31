@@ -1,4 +1,5 @@
 #![no_std]
+#[allow(unused_imports)]
 use gstd::{exec, msg, prelude::*, prog::ProgramGenerator, ActorId, CodeId};
 use tamagotchi_army_io::*;
 
