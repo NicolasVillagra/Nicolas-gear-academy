@@ -6,8 +6,11 @@ use gstd::{
 };
 use tamagotchi_auto_io::{TmgAction, TmgEvent};
 use tamagotchi_store_io::{StoreEvent, StoreAction, AttributeId};
+use tamagotchi_store_io::TamagotchiId;
 
-#[derive(Default)]
+#[derive(PartialEq, Debug , Default , Encode, Decode, TypeInfo)]
+#[codec(crate = gstd::codec)]
+#[scale_info(crate = gstd::scale_info)]
 enum BattleState {
     #[default]
     Registration,
@@ -103,8 +106,8 @@ pub struct Battle {
     pub tmg_store_id: ActorId,
     pub winner: ActorId,
     pub steps: u8,
-    pub weapons_data: BTreeMap<AttributeId, Power>,
-    pub shields_data: BTreeMap<AttributeId, Protection>,
+    pub weapons_data: BTreeMap<AttributeId, PowerTmg>,
+    pub shields_data: BTreeMap<AttributeId, ProtectionTmg>,
     pub reservations: Vec<ReservationId>,
 }
 
@@ -131,9 +134,9 @@ pub const SWORD_ID: AttributeId = 1;
 pub const SWORD_TMG_WOOD:PowerTmg = 1;
 pub const SWORD_WOOD_ID: AttributeId = 2;
 // Guns
-pub const SHOTGUN_POWER: Power = 6;
+pub const SHOTGUN_POWER: PowerTmg = 6;
 pub const SHOTGUN_ID: AttributeId = 3;
-pub const RPG_POWER: Power = 10;
+pub const RPG_POWER: PowerTmg = 10;
 pub const RPG_ID: AttributeId = 4;
 // ESCUDITO
 pub const SHIELD: ProtectionTmg = 3_500;
@@ -148,12 +151,12 @@ impl Battle {
             "The game has already started"
         );
     
-        let owner = Self::get_owner(tmg_id).await;
-        let power = Self::genetate_random_num_field(MIN_POWER, MAX_POWER);
+        let owner = Self::fetch_owner(tmg_id).await;
+        let power = Self::generate_random_number_field(MIN_POWER, MAX_POWER);
         let power = MAX_POWER - power;
-        let energy = Self::genetate_random_num_field(MIN_ENERGY, MAX_ENERGY);
+        let energy = Self::generate_random_number_field(MIN_ENERGY, MAX_ENERGY);
         let energy = MAX_ENERGY - energy;
-        let random_position = Self::get_turn();
+        let random_position = Self::determine_turn();
         let actual_side = if random_position == 0 {
             DirectionOfMovement::Left
         } else {
@@ -173,7 +176,7 @@ impl Battle {
         self.players.push(player);
         
         if self.players.len() == 2 {
-            self.current_turn = Self::get_turn();
+            self.current_turn = Self::determine_turn();
             self.state = BattleState::Moves;
         }
         
@@ -254,12 +257,12 @@ impl Battle {
         
         let mut opponent = self.players[next_turn].clone();
         
-        let player_attribute_id = Self::player_actual_attribute_id(&player);
+        let player_attribute_id = Self::get_player_actual_attribute_id(&player);
         
         player.actual_attribute += 1;
         player.actual_side = direction;
         if !self.shields_data.contains_key(&player_attribute_id) {
-            let total_atack = self.tamagotchi_total_atack(&player, &opponent);
+            let total_atack = self.calculate_tamagotchi_total_attack(&player, &opponent);
             if player.actual_side == opponent.actual_side {
                 opponent.energy = opponent.energy.saturating_sub(total_atack);
             } else {
@@ -330,8 +333,8 @@ impl Battle {
     
     pub fn calculate_tamagotchi_total_attack(&self, player: &Player, opponent: &Player) -> u16 {
         let mut total_attack = player.power;
-        let player_weapon_attribute = Self::player_actual_attribute_id(player);
-        let opponent_attribute = Self::player_actual_attribute_id(opponent);   
+        let player_weapon_attribute = Self::get_player_actual_attribute_id(player);
+        let opponent_attribute = Self::get_player_actual_attribute_id(opponent);   
         if self.weapons_data.contains_key(&player_weapon_attribute) {
             total_attack *= *self.weapons_data.get(&player_weapon_attribute).unwrap();
         }
@@ -404,7 +407,7 @@ impl Battle {
         );
         
         self.state = BattleState::Moves;
-        self.current_turn = Self::get_turn();
+        self.current_turn = Self::determine_turn();
         
         msg::send(self.players[0].owner, BattleEvent::InfoUpdated, 0)
             .expect("Error during a reply BattleEvent::InfoUpdated");

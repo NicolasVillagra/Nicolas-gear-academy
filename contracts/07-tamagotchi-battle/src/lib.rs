@@ -51,7 +51,7 @@ async fn main() {
             tmg_battle.update_tamagotchi_attributes(new_attributes);
         },
         BattleAction::StartNewGame => {
-            tmg_battle.reset_game_contract();
+            tmg_battle.reset_game();
         },
         BattleAction::ReserveGas { 
             reservation_amount, 
